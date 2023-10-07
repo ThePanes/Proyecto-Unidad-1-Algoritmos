@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_LINE_LENGTH 150
+
 typedef struct Carta{
     char nombreCarta[50];
     char tipoCarta[50];
@@ -54,10 +56,43 @@ void liberar_Espacio_Cartitas(Carta *primeraCarta) {
     }
 }
 
-int main(){
+void initFromText(Carta **primeraCarta){
+
+    FILE *file = fopen("archivo.txt", "r");
+    if (file == NULL) return;
+
+    char line[MAX_LINE_LENGTH]; //MAX_LINE_LENGTH es un valor global que definen ustedes
+    while(fgets(line, MAX_LINE_LENGTH, file)){
+
+        Carta *nuevaCartita = (Carta*)malloc(sizeof(Carta));
+
+        char *nombreCartitaNueva = strtok(line, ",");
+        char *tipoCartitaNueva = strtok(line, ",");
+        strcpy(nuevaCartita->nombreCarta, nombreCartitaNueva);
+        //atoi para valores enteros
+        nuevaCartita->puntosVida = atoi(strtok(NULL, ",")); //atof para valores decimales
+        nuevaCartita->puntosAtaque = atoi(strtok(NULL, ","));
+        nuevaCartita->puntosDefensa = atoi(strtok(NULL, ","));
+
+        nuevaCartita->siguiente = NULL;
+
+        // Se añade el Struct creado a la lista existente.
+        add_Cartita_Mazo(primeraCarta, nuevaCartita);
+    }
+
+    fclose(file);
+}
+
+
+
+int main(int argc,char *argv[]){
 
     Carta *primeraCarta = NULL;
     Carta *nuevaCarta;
+    initFromText(&primeraCarta);
+
+
+
 
     int opcion;
     char nom[50];
@@ -69,9 +104,9 @@ int main(){
 
     nuevaCarta = crear_Cartita_Mazo("Matias","Brujo",10,10,10);
     add_Cartita_Mazo(&primeraCarta, nuevaCarta);
-    
+
     imprimeCartas(primeraCarta);
-    
+
     printf("\nBienvenido, que desea hacer?\n");
     printf("\1.nueva carta en mazo");
     scanf("%d",&opcion);
@@ -97,7 +132,7 @@ int main(){
 
 
 
-    
+
 
     return 0;
 }
