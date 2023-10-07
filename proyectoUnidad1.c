@@ -85,8 +85,6 @@ void initFromText(Carta **primeraCarta){
     fclose(file);
 }
 
-
-
 int main(){
 
     Carta *primeraCarta = NULL;
@@ -127,10 +125,6 @@ int main(){
 
         default: break;
     }
-
-
-
-
 
     return 0;
 }
