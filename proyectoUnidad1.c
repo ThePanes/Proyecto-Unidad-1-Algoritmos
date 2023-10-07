@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LINE_LENGTH 150
+#define MAX_LINE_LENGTH 500
 
 typedef struct Carta{
     char nombreCarta[50];
@@ -42,7 +42,7 @@ void imprimeCartas(Carta *primeraCarta) {
     printf("\nLista de Cartas:\n");
     Carta *actualCarta = primeraCarta;
     while (actualCarta != NULL) {
-        printf("\nnombreCarta: %s,tipoCarta: %s, vidaCarta: %d, defensaCarta: %d., ataqueCarta: %d.\n", actualCarta->nombreCarta,actualCarta->tipoCarta, actualCarta->puntosVida, actualCarta->puntosDefensa,actualCarta->puntosAtaque);
+        printf("\nnombreCarta: %s,tipoCarta: %s, vidaCarta: %d, ataqueCarta: %d., defensaCarta: %d.\n", actualCarta->nombreCarta,actualCarta->tipoCarta, actualCarta->puntosVida,actualCarta->puntosAtaque ,actualCarta->puntosDefensa);
         actualCarta = actualCarta->siguiente;
     }
 }
@@ -58,7 +58,8 @@ void liberar_Espacio_Cartitas(Carta *primeraCarta) {
 
 void initFromText(Carta **primeraCarta){
 
-    FILE *file = fopen("archivo.txt", "r");
+    char *archivito = "guardians.txt";
+    FILE *file = fopen(archivito, "r");
     if (file == NULL) return;
 
     char line[MAX_LINE_LENGTH]; //MAX_LINE_LENGTH es un valor global que definen ustedes
@@ -67,8 +68,9 @@ void initFromText(Carta **primeraCarta){
         Carta *nuevaCartita = (Carta*)malloc(sizeof(Carta));
 
         char *nombreCartitaNueva = strtok(line, ",");
-        char *tipoCartitaNueva = strtok(line, ",");
+        char *tipoCartitaNueva = strtok(NULL, ",");
         strcpy(nuevaCartita->nombreCarta, nombreCartitaNueva);
+        strcpy(nuevaCartita->tipoCarta, tipoCartitaNueva);
         //atoi para valores enteros
         nuevaCartita->puntosVida = atoi(strtok(NULL, ",")); //atof para valores decimales
         nuevaCartita->puntosAtaque = atoi(strtok(NULL, ","));
@@ -85,15 +87,11 @@ void initFromText(Carta **primeraCarta){
 
 
 
-int main(int argc,char *argv[]){
+int main(){
 
     Carta *primeraCarta = NULL;
     Carta *nuevaCarta;
     initFromText(&primeraCarta);
-
-
-
-
     int opcion;
     char nom[50];
     char tipo[50];
