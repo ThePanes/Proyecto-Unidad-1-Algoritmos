@@ -13,7 +13,13 @@ typedef struct Carta{
     struct Carta *siguiente;
 }Carta;
 
-Carta* crear_Cartita_Mazo(char *nombreC, char *tipoC, int vidaC, int defensaC, int ataqueC){
+typedef struct Jugador{
+
+    char nombreJugador[50];
+    Carta *mazoPersonaje;
+}Jugador;
+
+Carta *crear_Cartita_Mazo(char *nombreC, char *tipoC, int vidaC, int defensaC, int ataqueC){
 
     Carta *nuevaCarta = (Carta*)malloc(sizeof(Carta));
     strcpy(nuevaCarta->nombreCarta, nombreC);
@@ -37,6 +43,18 @@ void add_Cartita_Mazo(Carta **primeraCarta, Carta *nuevaCartaMazo) {
         actualCarta->siguiente = nuevaCartaMazo;
     }
 }
+
+Jugador *crear_Jugadores(char *nombreNuevoJugador){
+    Jugador *nuevoJugador = (Jugador*)malloc(sizeof(Jugador));
+    strcpy(nuevoJugador->nombreJugador, nombreNuevoJugador);
+    nuevoJugador->mazoPersonaje = NULL;
+    return nuevoJugador;
+}
+
+void agregar_Cartitas_Mazo_Jugador(Jugador *jugador, Carta *CartaParaJugador ){
+        add_Cartita_Mazo(&(jugador->mazoPersonaje),CartaParaJugador);
+}
+
 
 void imprimeCartas(Carta *primeraCarta) {
     printf("\nLista de Cartas:\n");
@@ -85,23 +103,34 @@ void initFromText(Carta **primeraCarta){
     fclose(file);
 }
 
+
 int main(){
 
-    Carta *primeraCarta = NULL;
-    Carta *nuevaCarta;
-    initFromText(&primeraCarta);
     int opcion;
     char nom[50];
     char tipo[50];
     int vida, defensa,ataque;
+    Carta *primeraCarta = NULL;
+    Carta *nuevaCarta;
+    initFromText(&primeraCarta);
 
-    nuevaCarta = crear_Cartita_Mazo("Alan","Mago",10,10,10);
+    nuevaCarta = crear_Cartita_Mazo("Alan","Mago",/*vida*/10,/*ataque*/10,/*defensa*/10);
     add_Cartita_Mazo(&primeraCarta, nuevaCarta);
 
     nuevaCarta = crear_Cartita_Mazo("Matias","Brujo",10,10,10);
     add_Cartita_Mazo(&primeraCarta, nuevaCarta);
 
+    Jugador *nuevoJugador = crear_Jugadores("El brayan");
+
+    agregar_Cartitas_Mazo_Jugador(nuevoJugador,nuevaCarta);
+
     imprimeCartas(primeraCarta);
+
+    printf("\n A continuacion, las cartas del jugador:\n");
+
+    imprimeCartas(nuevoJugador->mazoPersonaje);
+
+
 
     printf("\nBienvenido, que desea hacer?\n");
     printf("\1.nueva carta en mazo");
