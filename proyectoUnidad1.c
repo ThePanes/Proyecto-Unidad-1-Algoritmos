@@ -14,7 +14,6 @@ typedef struct Carta{
 }Carta;
 
 typedef struct Jugador{
-
     char nombreJugador[50];
     Carta *mazoPersonaje;
 }Jugador;
@@ -32,7 +31,8 @@ Carta *crear_Cartita_Mazo(char *nombreC, char *tipoC, int vidaC, int defensaC, i
 }
 
 void add_Cartita_Mazo(Carta **primeraCarta, Carta *nuevaCartaMazo) {
-
+    //primera carta es la primera del mazo, pero en realidad se toma como el head para la lista de cartas, por lo que recorremos esa lista
+    //vemos que en esa lista si no hay una primera carta, se crea una primera carta, luego comparamos
     if (*primeraCarta == NULL) {
         *primeraCarta = nuevaCartaMazo;
     } else {
@@ -45,6 +45,7 @@ void add_Cartita_Mazo(Carta **primeraCarta, Carta *nuevaCartaMazo) {
 }
 
 Jugador *crear_Jugadores(char *nombreNuevoJugador){
+    //creamos jugadores al igual como creamos una carta, por lo cual, creamos una lista de cartas.
     Jugador *nuevoJugador = (Jugador*)malloc(sizeof(Jugador));
     strcpy(nuevoJugador->nombreJugador, nombreNuevoJugador);
     nuevoJugador->mazoPersonaje = NULL;
@@ -53,6 +54,30 @@ Jugador *crear_Jugadores(char *nombreNuevoJugador){
 
 void agregar_Cartitas_Mazo_Jugador(Jugador *jugador, Carta *CartaParaJugador ){
         add_Cartita_Mazo(&(jugador->mazoPersonaje),CartaParaJugador);
+}
+
+//falta terminar la siguiente funcion, de momento no aseguro su funcionamiento.
+
+void repartir_Aleatorio(Carta **mazoCartas, Jugador *jugador){
+
+    int cartasTotales = 0;
+    srand(time(NULL));
+
+    Carta *cartaActual = *mazoCartas;
+
+    while (cartaActual != NULL) {
+
+        cartasTotales++;
+        cartaActual = cartaActual->siguiente;
+    }
+    //tenemos el numero de la carta aleatoria entre la cantidad total de cartas
+    int cartaAleatoriaPos = rand() % cartasTotales;
+
+    cartaActual = mazoCartas;
+
+    for(int i = 0 ; i < cartaAleatoriaPos; i++){
+        cartaActual = cartaActual->siguiente;
+    }
 }
 
 
@@ -66,6 +91,7 @@ void imprimeCartas(Carta *primeraCarta) {
 }
 
 void liberar_Espacio_Cartitas(Carta *primeraCarta) {
+    //liberamos el espacio de las cartas, recorriendo el mazo desde la primera carta de ese mazo.
     Carta *actualCarta = primeraCarta;
     while (actualCarta != NULL) {
         Carta *siguiente = actualCarta->siguiente;
@@ -79,12 +105,9 @@ void initFromText(Carta **primeraCarta){
     char *archivito = "guardians.txt";
     FILE *file = fopen(archivito, "r");
     if (file == NULL) return;
-
     char line[MAX_LINE_LENGTH]; //MAX_LINE_LENGTH es un valor global que definen ustedes
     while(fgets(line, MAX_LINE_LENGTH, file)){
-
         Carta *nuevaCartita = (Carta*)malloc(sizeof(Carta));
-
         char *nombreCartitaNueva = strtok(line, ",");
         char *tipoCartitaNueva = strtok(NULL, ",");
         strcpy(nuevaCartita->nombreCarta, nombreCartitaNueva);
@@ -93,13 +116,10 @@ void initFromText(Carta **primeraCarta){
         nuevaCartita->puntosVida = atoi(strtok(NULL, ",")); //atof para valores decimales
         nuevaCartita->puntosAtaque = atoi(strtok(NULL, ","));
         nuevaCartita->puntosDefensa = atoi(strtok(NULL, ","));
-
         nuevaCartita->siguiente = NULL;
-
         // Se añade el Struct creado a la lista existente.
         add_Cartita_Mazo(primeraCarta, nuevaCartita);
     }
-
     fclose(file);
 }
 
