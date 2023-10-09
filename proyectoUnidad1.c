@@ -60,29 +60,41 @@ void agregar_Cartitas_Mazo_Jugador(Jugador *jugador, Carta *CartaParaJugador ){
 
 void repartir_Aleatorio(Carta **mazoCartas, Jugador *jugador){
 
-    int cartasTotales = 0;
+    if(*mazoCartas == NULL){
+        return;
+    }
     srand(time(NULL));
-
+    int cartasTotales = 0;
     Carta *cartaActual = *mazoCartas;
-
     while (cartaActual != NULL) {
-
+                            //aqui sumamos el total de las cartas en un contador (solo usamos carta actual para recorrer la cantidad de elementos)
         cartasTotales++;
         cartaActual = cartaActual->siguiente;
     }
     //tenemos el numero de la carta aleatoria entre la cantidad total de cartas
     int cartaAleatoriaPos = rand() % cartasTotales;
-
-    cartaActual = mazoCartas;
-
+                                //volvemos al primer caso, para asi tener el principio del mazo
+    cartaActual = *mazoCartas;
+                                //recorremos la lista de cartas hasta llegar a la posicion actual de la carta aleatoria en el maoz
     for(int i = 0 ; i < cartaAleatoriaPos; i++){
         cartaActual = cartaActual->siguiente;
     }
+                                    //si la posicion de la carta aleatoria es 0, es la primera carta del mazo, de lo contrario...
+    if(cartaAleatoriaPos == 0){
+
+        *mazoCartas = cartaActual->siguiente;
+    }else{                          //funcion vista en clases,
+        Carta *anterior = *mazoCartas;
+        while(anterior->siguiente != cartaActual){
+            anterior = anterior->siguiente;
+        }
+        anterior->siguiente = cartaActual->siguiente;
+    }
+    cartaActual->siguiente = NULL;
+    agregar_Cartitas_Mazo_Jugador(jugador,cartaActual);
 }
 
-
 void imprimeCartas(Carta *primeraCarta) {
-    printf("\nLista de Cartas:\n");
     Carta *actualCarta = primeraCarta;
     while (actualCarta != NULL) {
         printf("\nnombreCarta: %s,tipoCarta: %s, vidaCarta: %d, ataqueCarta: %d., defensaCarta: %d.\n", actualCarta->nombreCarta,actualCarta->tipoCarta, actualCarta->puntosVida,actualCarta->puntosAtaque ,actualCarta->puntosDefensa);
@@ -101,7 +113,7 @@ void liberar_Espacio_Cartitas(Carta *primeraCarta) {
 }
 
 void initFromText(Carta **primeraCarta){
-
+                                            //solo funcionara si el texto en la misma carpeta tiene el nombre guardians.txt
     char *archivito = "guardians.txt";
     FILE *file = fopen(archivito, "r");
     if (file == NULL) return;
@@ -134,23 +146,27 @@ int main(){
     Carta *nuevaCarta;
     initFromText(&primeraCarta);
 
-    nuevaCarta = crear_Cartita_Mazo("Alan","Mago",/*vida*/10,/*ataque*/10,/*defensa*/10);
-    add_Cartita_Mazo(&primeraCarta, nuevaCarta);
+    printf("\nLista de Cartas:\n");
+    imprimeCartas(primeraCarta);
 
-    nuevaCarta = crear_Cartita_Mazo("Matias","Brujo",10,10,10);
-    add_Cartita_Mazo(&primeraCarta, nuevaCarta);
+    //nuevaCarta = crear_Cartita_Mazo("Alan","Mago",/*vida*/10,/*ataque*/10,/*defensa*/10);
+    //add_Cartita_Mazo(&primeraCarta, nuevaCarta);
+
+    //nuevaCarta = crear_Cartita_Mazo("Matias","Brujo",10,10,10);
+    //add_Cartita_Mazo(&primeraCarta, nuevaCarta);
 
     Jugador *nuevoJugador = crear_Jugadores("El brayan");
 
-    agregar_Cartitas_Mazo_Jugador(nuevoJugador,nuevaCarta);
+    //agregar_Cartitas_Mazo_Jugador(nuevoJugador,nuevaCarta);
 
-    imprimeCartas(primeraCarta);
-
+    for(int i = 0; i < 15; i++){
+        repartir_Aleatorio(&primeraCarta, nuevoJugador);
+    }
     printf("\n A continuacion, las cartas del jugador:\n");
-
     imprimeCartas(nuevoJugador->mazoPersonaje);
 
-
+    printf("\n nueva lista de cartas:\n");
+    imprimeCartas(primeraCarta);
 
     printf("\nBienvenido, que desea hacer?\n");
     printf("\1.nueva carta en mazo");
