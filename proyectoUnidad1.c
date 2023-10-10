@@ -103,8 +103,60 @@ void eliminar_Cartas(Carta **primeraCarta, Carta *cartaEliminar){
 }
 
 
-void repartir_Aleatorio(Carta **mazoCartas, Jugador *jugador){
+                //funciones que me faltan por implementar:
+void atacar_oponente(Jugador *atacante, Jugador *oponente){
 
+    if(atacante->cartasMesaJugador == NULL){
+        printf("\nNo tienes cartas en tu campo para atacar\n");
+        return;
+    }
+    if(oponente->cartasMesaJugador ==NULL){
+        printf("\nEl enemigo no tiene cartas en su campo de batalla\n");
+        return;
+    }
+
+    Carta *cartaAtaque = atacante->cartasMesaJugador;
+
+}
+
+void turno_auto(Jugador *maquina){
+
+
+}
+
+void registro_partida(){
+
+}
+
+void imprimir_mesa(Carta *primeraCarta){
+    int pos = 1;
+    Carta *cartaActual = primeraCarta;
+        while(cartaActual != NULL){
+            printf("%d", pos);
+            printf("\nnombreCarta: %s,tipoCarta: %s, vidaCarta: %d, ataqueCarta: %d., defensaCarta: %d.\n", cartaActual->nombreCarta,cartaActual->tipoCarta, cartaActual->puntosVida,cartaActual->puntosAtaque ,cartaActual->puntosDefensa);
+            cartaActual = cartaActual->siguiente;
+            pos++;
+        }
+}
+
+Carta *get_carta_en_posicion(Carta *primera, int pos){
+
+        //tenemos un contador, la idea es que esto nos devuelva la carta que queremos en la posicion que solicitamos
+    int i = 1;
+    Carta *cartaActual = primera;
+
+    while(cartaActual !=NULL){
+                        //si encontramos la carta en la posicion, la retornamos,pero, de no ser asi, sumamos el contador y avanzamos en la lista.a
+        if(i == pos){
+            return cartaActual;
+        }
+        cartaActual = cartaActual->siguiente;
+        i++;
+    }
+    return NULL;
+}
+
+void repartir_Aleatorio(Carta **mazoCartas, Jugador *jugador){
     if(*mazoCartas == NULL){
         return;
     }
