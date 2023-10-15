@@ -38,8 +38,10 @@ void liberar_Espacio_Cartitas(Carta *primeraCarta);
 void repartir_Aleatorio(Carta **mazoCartas, Jugador *jugador);
 Carta *pop_carta(Carta **pila);
 void push_carta(Carta **pila, Carta *cartaNueva);
-Carta *seleccionar_carta_mano_ataque(Jugador *jugador);
+Carta *seleccionar_carta_mesa_ataque(Jugador *jugador);
 Carta *seleccionar_carta_enemiga_atacar(Jugador *adversario);
+void autoTurnoMaquina(Jugador *jugador, Jugador *maquina);
+Carta *seleccionar_carta_enemiga_atacar_auto(Jugador *adversario);
 //void atacar_oponente(Carta *cartaAtacante,Jugador *jugador, Jugador *oponente);
 
 int main(){
@@ -171,8 +173,8 @@ void imprimir_mesa(Carta *primeraCarta){
     int pos = 1;
     Carta *cartaActual = primeraCarta;
         while(cartaActual != NULL){
-            printf("%d", pos);
-            printf("\nnombreCarta: %s,tipoCarta: %s, vidaCarta: %d, ataqueCarta: %d., defensaCarta: %d.\n", cartaActual->nombreCarta,cartaActual->tipoCarta, cartaActual->puntosVida,cartaActual->puntosAtaque ,cartaActual->puntosDefensa);
+            printf("\n%d", pos);
+            printf("nombreCarta: %s,tipoCarta: %s, vidaCarta: %d, ataqueCarta: %d., defensaCarta: %d.\n", cartaActual->nombreCarta,cartaActual->tipoCarta, cartaActual->puntosVida,cartaActual->puntosAtaque ,cartaActual->puntosDefensa);
             cartaActual = cartaActual->siguiente;
             pos++;
         }
@@ -180,9 +182,12 @@ void imprimir_mesa(Carta *primeraCarta){
 
 void imprimeCartas(Carta *primeraCarta) {
     Carta *actualCarta = primeraCarta;
+    int contarCartaPos = 1;
     while (actualCarta != NULL) {
-        printf("\nnombreCarta: %s,tipoCarta: %s, vidaCarta: %d, ataqueCarta: %d., defensaCarta: %d.\n", actualCarta->nombreCarta,actualCarta->tipoCarta, actualCarta->puntosVida,actualCarta->puntosAtaque ,actualCarta->puntosDefensa);
+        printf("\n%d._",contarCartaPos);
+        printf("nombreCarta: %s,tipoCarta: %s, vidaCarta: %d, ataqueCarta: %d., defensaCarta: %d.\n", actualCarta->nombreCarta,actualCarta->tipoCarta, actualCarta->puntosVida,actualCarta->puntosAtaque ,actualCarta->puntosDefensa);
         actualCarta = actualCarta->siguiente;
+        contarCartaPos++;
     }
 }
 
@@ -213,9 +218,7 @@ void repartir_Aleatorio(Carta **mazoCartas, Jugador *jugador){
         cartasTotales++;
         cartaActual = cartaActual->siguiente;
     }
-
         //printf("/nAhora, despues de agregar las cartas, El total de cartas es:\n %d",cartasTotales);
-
     if(cartasTotales == 0){
             printf("\n El mazo esta vacio.");
         return;
@@ -229,10 +232,8 @@ void repartir_Aleatorio(Carta **mazoCartas, Jugador *jugador){
         cartaActual = cartaActual->siguiente;
     }
         // printf("La primera carta aleatoria es:%s \n",cartaActual->nombreCarta);
-
                                     //si la posicion de la carta aleatoria es 0, es la primera carta del mazo, de lo contrario...
     if(cartaAleatoriaPos == 0){
-
         *mazoCartas = cartaActual->siguiente;
     }else{                          //funcion vista en clases mas implementaciones.
         Carta *anterior = *mazoCartas;
@@ -242,7 +243,6 @@ void repartir_Aleatorio(Carta **mazoCartas, Jugador *jugador){
         anterior->siguiente = cartaActual->siguiente;
     }
     cartaActual->siguiente = NULL;
-
     //printf("\n La funcion hasta aqui funciona.\n");
     agregar_Cartitas_Mazo_Jugador(jugador,cartaActual);
 }
@@ -263,6 +263,8 @@ void jugar_Partida(Jugador *jugador, Jugador *maquina){
     while(jugador->vidaJugador != 0 || maquina->vidaJugador !=0){
         printf("\n Turno numero:\n %d",contadorTurno);
         sacarCartas(jugador);
+        printf("\nEstas son las cartas en tu mano:\n");
+        imprimeCartas(jugador->cartasenMano);
                 //programamos el turno del jugador:
         printf("\n que desea hacer? \n 1._Atacar Carta enemiga.\n 2._Poner Carta en el campo.");
         scanf("%d",&opcionJugador);
@@ -270,7 +272,7 @@ void jugar_Partida(Jugador *jugador, Jugador *maquina){
 
             case 1:{
                         //arreglar funcion seleccionar carta mano
-                Carta *cartaAtaque = seleccionar_carta_mano_ataque(jugador);
+                Carta *cartaAtaque = seleccionar_carta_mesa_ataque(jugador);
 
                         //finamente arregle funcion seleccionar carta mano., falta implementar que se vea el numero de la carta en la pantalla para eleccion.
                 if(cartaAtaque == NULL){
@@ -305,6 +307,9 @@ void jugar_Partida(Jugador *jugador, Jugador *maquina){
                 printf("\n Opcion invalida. \n");
                 break;
         }
+        sacarCartas(maquina);
+        printf("\nHasta aqui funciona\n");
+        autoTurnoMaquina(jugador,maquina);
         contadorTurno++;
     }
     if(jugador->vidaJugador < 0 ){
@@ -314,6 +319,105 @@ void jugar_Partida(Jugador *jugador, Jugador *maquina){
     }
 
 }
+
+void autoTurnoMaquina(Jugador *jugador, Jugador *maquina){
+    srand(time(NULL));
+    int contador = 1;
+    Carta *contadorCartas = maquina->cartasenMano;
+    while(contadorCartas != NULL){
+        contador++;
+        contadorCartas = contadorCartas->siguiente;
+    }
+    printf("\n Turno de la maquina:\n");
+    if(maquina->cartasMesaJugador == NULL){
+        if(maquina->cartasenMano == NULL){
+            printf("\n No tiene cartas en su mano para poner en el campo.\n");
+            return;
+        }
+        //printf("\n Estas son las cartas en tu mano:\n");
+        //imprimeCartas(maquina->cartasenMano);
+        int cartaAleatoriaPosUno = rand() % contador;
+        Carta *cartaEleccionUno = get_carta_en_posicion(maquina->cartasenMano,cartaAleatoriaPosUno );
+        if(cartaEleccionUno == NULL){
+            printf("\n No existe carta en esa posicion,reintente.\n");
+            return;
+        }
+        eliminar_Cartas(&(maquina->cartasenMano),cartaEleccionUno);
+        push_carta(&(maquina->cartasMesaJugador),cartaEleccionUno);
+
+        printf("\n La maquina coloco una carta en la mesa.\n");
+    }else{
+
+
+        imprimeCartas(maquina->cartasMesaJugador);
+        if(maquina->cartasMesaJugador != NULL){
+
+            int rancarta = rand() % contador;
+            Carta *cartaEleccion = get_carta_en_posicion(maquina->cartasMesaJugador, rancarta);
+
+            if(cartaEleccion == NULL){
+                printf("\n No hay cartas enemigas para atacar.\n");
+                return;
+            }
+            Carta *cartaEnemiga = seleccionar_carta_enemiga_atacar_auto(jugador);
+            if(cartaEnemiga == NULL){
+                printf("\n No hay cartas enemigas para atacar.\n");
+                return;
+            }
+
+            int golpeCartaAuto = cartaEleccion->puntosAtaque -  cartaEnemiga->puntosDefensa;
+                if(golpeCartaAuto > 0 ){
+                    cartaEnemiga->puntosVida -=golpeCartaAuto;
+                    if(cartaEnemiga->puntosVida <= 0){
+                            printf("\n Eliminaste la carta enemiga.\n");
+                        eliminar_Cartas(&(jugador->cartasMesaJugador), cartaEnemiga);
+                    }
+                }else{
+                    printf("\n La carta enemiga se resistio al ataque. \n");
+                }
+        }
+
+    }
+        //la maquina pone una carta en la mesa
+    if(maquina->cartasenMano != NULL){
+        printf("\n Estas son las cartas en tu mano:\n");
+        imprimeCartas(maquina->cartasenMano);
+        int cartaAleatoriaPos = rand() % contador;
+        Carta *cartaEleccion = get_carta_en_posicion(maquina->cartasenMano,cartaAleatoriaPos );
+        if(cartaEleccion == NULL){
+            printf("\n No existe carta en esa posicion,reintente.\n");
+            return;
+        }
+        eliminar_Cartas(&(maquina->cartasenMano),cartaEleccion);
+        push_carta(&(maquina->cartasMesaJugador),cartaEleccion);
+    }
+
+}
+
+Carta *seleccionar_carta_enemiga_atacar_auto(Jugador *adversario){
+        srand(time(NULL));
+        int contador = 1;
+        Carta *contadorCartas = adversario->cartasMesaJugador;
+        while(contadorCartas != NULL){
+            contadorCartas = contadorCartas->siguiente;
+            contador++;
+        }
+
+        if(adversario->cartasMesaJugador == NULL){
+            printf("\n No tiene cartas en el campo.\n");
+            return NULL;
+        }
+        printf("\n Estas son las cartas en el campo enemigo:\n");
+        imprimir_mesa(adversario->cartasMesaJugador);
+        int cartaAleatoriaPosX = rand() % contador;
+
+        Carta *cartaEleccion = get_carta_en_posicion(adversario->cartasMesaJugador, cartaAleatoriaPosX);
+        if(cartaEleccion == NULL){
+            printf("\n No existe carta en esa posicion,reintente.\n");
+        }
+        return cartaEleccion;
+}
+
 
 Carta *get_carta_en_posicion(Carta *primera, int pos){
         //tenemos un contador, la idea es que esto nos devuelva la carta que queremos en la posicion que solicitamos
@@ -341,18 +445,18 @@ void sacarCartas(Jugador *jugador){
 
 }
 
-Carta *seleccionar_carta_mano_ataque(Jugador *jugador){
+Carta *seleccionar_carta_mesa_ataque(Jugador *jugador){
         int op;
-        if(jugador->cartasenMano == NULL){
-            printf("\n No tiene cartas en su mano para poner en el campo.\n");
+        if(jugador->cartasMesaJugador == NULL){
+            printf("\n No tiene cartas en tu campo para atacar.\n");
             return;
         }
 
-        printf("\n Estas son las cartas en tu mano:\n");
-        imprimeCartas(jugador->cartasenMano);
+        printf("\n Estas son las cartas en tu campo:\n");
+        imprimeCartas(jugador->cartasMesaJugador);
         printf("\n Elige con que carta deseas atacar:\n");
         scanf("%d",&op);
-        Carta *cartaEleccion = get_carta_en_posicion(jugador->cartasenMano, op);
+        Carta *cartaEleccion = get_carta_en_posicion(jugador->cartasMesaJugador, op);
         if(cartaEleccion == NULL){
             printf("\n No existe carta en esa posicion,reintente.\n");
             return;
