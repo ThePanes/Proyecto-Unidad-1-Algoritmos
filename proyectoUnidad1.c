@@ -5,6 +5,9 @@
 
 #define MAX_LINE_LENGTH 500
 
+                    //Proyecto realizado por Oscar Alexander Montecinos Guerrero,de la carrera IDVYRV, para el ramo Algoritmo y estructuras de datos.
+
+
                         //estructuras a utilizar
 typedef struct Carta{
     char nombreCarta[50];
